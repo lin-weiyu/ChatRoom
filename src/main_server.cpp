@@ -38,6 +38,22 @@ int main(){
     }
     std::cout << "Client connected!" << std::endl;
 
+
+    // 接受数据
+
+    char buffer[1024];
+
+    while (true){
+        // recv 收数据
+        ssize_t bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+        if (bytes <= 0) break;
+
+        std::cout << "Received" << bytes <<" bytes" << std::endl;
+
+        // send 原样发回去
+        send(client_fd, buffer, bytes, 0);
+    }
+
     // 关闭
     close(client_fd);
     close(listen_fd);
