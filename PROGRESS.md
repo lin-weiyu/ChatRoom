@@ -2,34 +2,36 @@
 
 ## Current Status
 
-- **Phase**: Phase 1: Echo Server ✅ 完成
+- **Phase**: Phase 2: Multi-client epoll ✅ 完成
 - **Last Updated**: 2026-08-05
-- **Current Focus**: 进入 Phase 2 — 多客户端支持（epoll）
+- **Current Focus**: 进入 Phase 3 — 自定义聊天协议
 
 ## Feature Progress
 
 | Feature | Status | Completed Date | Notes |
 |---------|--------|---------------|-------|
-| Project structure & CMakeLists | ✅ | 2026-08-05 | cmake 配置通过 |
-| socket → bind → listen → accept | ✅ | 2026-08-05 | 单次连接正常 |
-| recv / send Echo | ✅ | 2026-08-05 | nc 测试通过，收发正常 |
-| Phase 2: Multi-client (epoll) | 📋 | - | 下一步 |
-| Phase 3: Chat protocol + rooms | 📋 | - | - |
+| Project structure & CMakeLists | ✅ | 2026-08-05 | - |
+| socket → bind → listen → accept | ✅ | 2026-08-05 | - |
+| recv / send Echo | ✅ | 2026-08-05 | nc 测试通过 |
+| epoll 多客户端 | ✅ | 2026-08-05 | 多个 nc 同时连接，各自正常收发 |
+| Phase 3: Chat protocol | 📋 | - | 下一步 |
 | Phase 4: Multi-threading | 📋 | - | - |
 | Phase 5: Web frontend | 📋 | - | - |
 
 ## Known Issues
 
-- 当前版只能服务一个客户端（accept 一次就退出），多客户端需要 epoll
+- 当前还是 Echo（原样返回），不是真正的聊天功能
+- 代码全部在 main() 里，功能多了之后需要拆类
 
 ## Next Steps
 
-1. 理解"为什么一个服务器要同时处理多个客户端"——阻塞 I/O 的局限
-2. 学习 epoll 三个 API：`epoll_create1` / `epoll_ctl` / `epoll_wait`
-3. 用 epoll 改造成多客户端 Echo Server
-4. 多个 nc 终端同时连接测试
+1. 设计简单的聊天协议（消息格式）
+2. 实现"一个客户端发消息，其他所有客户端都能收到"（广播）
+3. 给客户端分配名字/ID
 
 ## Learning Notes
 
-- 用户完成了完整的 TCP Echo Server：socket → bind → listen → accept → recv → send → close
-- 踩了 Ctrl+Z vs Ctrl+C 的坑，学习了进程管理命令（ps/pgrep/ss/kill/pkill/killall）
+- 用户完成了 epoll 多客户端改造：epoll_create1 → epoll_ctl → epoll_wait → 事件循环
+- 理解了 fd 作为"内核对象句柄"的 C 语言设计模式
+- 理解了 listen() 的语义：不是配置，是"开门营业"的开关
+- 理解了 epoll 原理：内核主动推送就绪 fd，不是遍历扫描
