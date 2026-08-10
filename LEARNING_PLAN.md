@@ -9,7 +9,7 @@
 
 ## Learning Roadmap
 
-### Phase 1 — Echo Server（当前）
+### Phase 1 — Echo Server（已完成）
 
 | 需要学习 | 资源 |
 |----------|------|
@@ -19,7 +19,7 @@
 | send/recv 数据收发 | Beej's Guide Ch5-6 |
 | 错误处理 (errno) | `man errno` |
 
-### Phase 2 — Multi-client (epoll)
+### Phase 2 — Multi-client (epoll)（已完成）
 
 | 需要学习 | 资源 |
 |----------|------|
@@ -28,7 +28,7 @@
 | 非阻塞 I/O | `man 2 fcntl` |
 | 粘包处理 | - |
 
-### Phase 3 — Chat Protocol
+### Phase 3 — Chat Protocol（当前）
 
 | 需要学习 | 资源 |
 |----------|------|
@@ -53,3 +53,4 @@
 ## Adjustment Log
 
 - **2026-08-02**: 初始计划。基于 mini-git 和 todo-cli 分析：网络编程零基础，从 Echo Server 起步。
+- **2026-08-10**: Phase 2 多客户端 epoll Echo Server 已完成，当前重点切换到 Phase 3 聊天协议设计。
