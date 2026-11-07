@@ -20,12 +20,14 @@ endif()
 
 add_executable(chatroom_tests
     unit/test_buffer.cpp
+    unit/test_chat_hub.cpp
     unit/test_frame_codec.cpp
     unit/test_unique_fd.cpp
     unit/test_version.cpp
 )
 
 target_link_libraries(chatroom_tests PRIVATE
+    chatroom_chat
     chatroom_core
     chatroom_net
     chatroom_protocol
