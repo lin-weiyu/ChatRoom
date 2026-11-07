@@ -100,7 +100,9 @@ target_compile_definitions(chatroom_core PRIVATE
 # 基础设施：日志、配置。所有层都可以用。
 add_library(chatroom_infra STATIC
     src/infra/config.cpp
+    src/infra/event_fd.cpp
     src/infra/logger.cpp
+    src/infra/thread_pool.cpp
 )
 target_link_libraries(chatroom_infra PUBLIC chatroom_platform)
 
