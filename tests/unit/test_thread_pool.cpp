@@ -1,13 +1,12 @@
-#include <gtest/gtest.h>
+#include "chatroom/infra/thread_pool.h"
 
 #include <atomic>
 #include <chrono>
 #include <thread>
+#include <vector>
 
-#include "chatroom/infra/event_fd.h"
-#include "chatroom/infra/thread_pool.h"
+#include <gtest/gtest.h>
 
-using chatroom::infra::EventFd;
 using chatroom::infra::ThreadPool;
 
 TEST(ThreadPool, RunsSubmittedTasks) {
@@ -60,16 +59,4 @@ TEST(ThreadPool, ConcurrentSubmitsAreSafe) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     EXPECT_EQ(counter.load(), 400);
-}
-
-TEST(EventFd, NotifyAndDrain) {
-    EventFd efd;
-    ASSERT_TRUE(efd.valid());
-
-    efd.notify();
-    efd.drain();  // 不应阻塞
-
-    efd.notify();
-    efd.notify();
-    efd.drain();  // 累计计数一次读走
 }

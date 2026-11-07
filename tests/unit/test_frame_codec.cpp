@@ -1,9 +1,9 @@
-#include <arpa/inet.h>
-#include <gtest/gtest.h>
+#include "chatroom/protocol/frame_codec.h"
 
+#include <arpa/inet.h>
 #include <string>
 
-#include "chatroom/protocol/frame_codec.h"
+#include <gtest/gtest.h>
 
 using chatroom::protocol::DecodeStatus;
 using chatroom::protocol::Frame;

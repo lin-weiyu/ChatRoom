@@ -1,10 +1,10 @@
 #include "chatroom/infra/config.h"
 
+#include "chatroom/version.h"
+
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
-
-#include "chatroom/version.h"
 
 namespace chatroom::infra {
 
@@ -31,8 +31,10 @@ std::string usage(const char* program) {
         << "\n"
         << "  --port <n>          listen port (default 12345, 0 = kernel-assigned)\n"
         << "  --max-conns <n>     reject new connections beyond this limit (default 1024)\n"
-        << "  --idle-timeout <s>  disconnect silent clients after s seconds (0 = off, default 120)\n"
-        << "  --workers <n>       business-logic worker threads (0 = run on the IO thread, default 2)\n"
+        << "  --idle-timeout <s>  disconnect silent clients after s seconds (0 = off, default "
+           "120)\n"
+        << "  --workers <n>       business-logic worker threads (0 = run on the IO thread, default "
+           "2)\n"
         << "  --backlog <n>       listen backlog (default 128)\n"
         << "  --verbose           enable debug logs\n"
         << "  --version           print version and exit\n"

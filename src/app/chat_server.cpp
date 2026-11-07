@@ -1,10 +1,10 @@
 #include "chatroom/app/chat_server.h"
 
-#include <utility>
-#include <vector>
-
 #include "chatroom/infra/logger.h"
 #include "chatroom/protocol/frame_codec.h"
+
+#include <utility>
+#include <vector>
 
 namespace chatroom::app {
 
@@ -16,8 +16,8 @@ ChatServer::ChatServer(const infra::Config& config)
     server_.set_close_handler([this](net::Connection& conn) { on_close(conn); });
 
     if (config_.worker_threads > 0) {
-        pool_ = std::make_unique<infra::ThreadPool>(
-            static_cast<std::size_t>(config_.worker_threads));
+        pool_ =
+            std::make_unique<infra::ThreadPool>(static_cast<std::size_t>(config_.worker_threads));
         server_.set_wakeup_fd(wakeup_.fd(), [this] {
             wakeup_.drain();
             drain_results();

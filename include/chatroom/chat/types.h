@@ -1,10 +1,10 @@
 #pragma once
 
+#include "chatroom/protocol/frame.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
-
-#include "chatroom/protocol/frame.h"
 
 namespace chatroom::chat {
 

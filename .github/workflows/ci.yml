@@ -13,46 +13,56 @@ concurrency:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # 构建 + 测试矩阵
-  #
-  # Linux 是主目标平台（epoll 只存在于 Linux 内核）。
-  # macOS 用来验证"与平台无关的层"仍然可移植——这一条在 M2 引入 epoll 之后
-  # 会帮助我们发现分层是否被破坏。
-  #
-  # 注意：runner 标签用 macos-latest 而不是写死 macos-14。
-  # GitHub 会退役旧标签（macos-14 已报 "configuration is not supported"），
-  # 写死版本的结果就是某天流水线突然红。
+  # Linux：全量构建 + 全部测试（含集成测试）
   # ---------------------------------------------------------------------------
-  build:
-    name: build (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04, macos-latest]
-
+  linux:
+    name: build (ubuntu-24.04)
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install dependencies (Linux)
-        if: runner.os == 'Linux'
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build libgtest-dev
 
-      - name: Install dependencies (macOS)
-        if: runner.os == 'macOS'
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCHATROOM_WERROR=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  # ---------------------------------------------------------------------------
+  # macOS：只构建平台无关的层（protocol / chat / infra）
+  #
+  # 这条 job 不是在"测试 macOS"，而是在**验证分层**：
+  # epoll 是 Linux 独有的，net/app 在 macOS 上编译不过。如果哪天有人往
+  # chat/protocol 里 include 了 <sys/epoll.h>，这里会立刻变红。
+  # ---------------------------------------------------------------------------
+  macos:
+    name: build (macos-latest, portable layers)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
         run: brew install cmake ninja googletest
 
       - name: Configure
-        # Homebrew 的安装前缀在两代 macOS 上不同（/opt/homebrew vs /usr/local），
-        # 写死一个必然在另一台上找不到 GTest。让 brew 自己说了算。
+        # Homebrew 前缀在 Apple Silicon（/opt/homebrew）和 Intel（/usr/local）
+        # 上不同，写死一个必然在另一台上找不到 GTest。
         run: |
-          PREFIX=""
-          if [ "$RUNNER_OS" = "macOS" ]; then PREFIX="$(brew --prefix)"; fi
+          PREFIX="$(brew --prefix)"
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
             -DCHATROOM_WERROR=ON \
+            -DCHATROOM_PORTABLE_ONLY=ON \
             -DCMAKE_PREFIX_PATH="$PREFIX"
 
       - name: Build
@@ -77,12 +87,11 @@ jobs:
 
       - name: Check formatting
         run: |
-          find include src tests -name '*.h' -o -name '*.cpp' \
+          find include src tests tools -name '*.h' -o -name '*.cpp' \
             | xargs clang-format --dry-run --Werror
 
   # ---------------------------------------------------------------------------
   # 容器镜像：验证 Dockerfile 里那条 "构建 + 测试" 链路是可用的。
-  # 这条 job 绿了，就意味着任何人拿到仓库都能一条命令跑起来。
   # ---------------------------------------------------------------------------
   docker:
     name: docker image

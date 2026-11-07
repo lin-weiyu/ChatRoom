@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include "chatroom/chat/chat_hub.h"
 
 #include <string>
 #include <vector>
 
-#include "chatroom/chat/chat_hub.h"
+#include <gtest/gtest.h>
 
 using chatroom::chat::ChatHub;
 using chatroom::chat::Outbound;

@@ -1,10 +1,10 @@
 #include "chatroom/net/server.h"
 
-#include <sys/epoll.h>
-#include <unistd.h>
-
 #include <cerrno>
+#include <sys/epoll.h>
 #include <vector>
+
+#include <unistd.h>
 
 namespace chatroom::net {
 
@@ -20,9 +20,13 @@ void Server::set_message_handler(MessageHandler handler) {
     message_handler_ = std::move(handler);
 }
 
-void Server::set_open_handler(OpenHandler handler) { open_handler_ = std::move(handler); }
+void Server::set_open_handler(OpenHandler handler) {
+    open_handler_ = std::move(handler);
+}
 
-void Server::set_close_handler(CloseHandler handler) { close_handler_ = std::move(handler); }
+void Server::set_close_handler(CloseHandler handler) {
+    close_handler_ = std::move(handler);
+}
 
 void Server::set_wakeup_fd(int fd, std::function<void()> handler) {
     wakeup_fd_ = fd;
@@ -38,12 +42,11 @@ void Server::on_new_connection(Acceptor::Accepted&& accepted) {
     auto conn = std::make_unique<Connection>(std::move(accepted.fd), std::move(accepted.peer));
 
     // 回调捕获 this 是安全的：Connection 的生命周期不超过 Server。
-    conn->set_message_handler(
-        [this](Connection& c, std::string_view data) {
-            if (message_handler_) {
-                message_handler_(c, data);
-            }
-        });
+    conn->set_message_handler([this](Connection& c, std::string_view data) {
+        if (message_handler_) {
+            message_handler_(c, data);
+        }
+    });
 
     // EPOLLRDHUP：对端 shutdown 写方向时通知我们。
     // 没有它，半关闭连接要等到下一次 recv 才发现。
@@ -92,9 +95,8 @@ void Server::handle_event(int fd, std::uint32_t events) {
 
     if (fd == acceptor_.fd()) {
         if ((events & EPOLLIN) != 0) {
-            acceptor_.accept_all([this](Acceptor::Accepted&& accepted) {
-                on_new_connection(std::move(accepted));
-            });
+            acceptor_.accept_all(
+                [this](Acceptor::Accepted&& accepted) { on_new_connection(std::move(accepted)); });
         }
         return;
     }

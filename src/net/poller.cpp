@@ -1,9 +1,9 @@
 #include "chatroom/net/poller.h"
 
+#include "chatroom/platform/sys_error.h"
+
 #include <cerrno>
 #include <cstring>
-
-#include "chatroom/platform/sys_error.h"
 
 namespace chatroom::net {
 

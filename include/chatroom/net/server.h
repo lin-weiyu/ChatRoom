@@ -1,13 +1,13 @@
 #pragma once
 
+#include "chatroom/net/acceptor.h"
+#include "chatroom/net/connection.h"
+#include "chatroom/net/poller.h"
+
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include "chatroom/net/acceptor.h"
-#include "chatroom/net/connection.h"
-#include "chatroom/net/poller.h"
 
 namespace chatroom::net {
 
@@ -24,9 +24,13 @@ public:
     Server& operator=(const Server&) = delete;
 
     // 监听端口（构造时传 0 则返回内核分配的真实端口）
-    std::uint16_t port() const noexcept { return acceptor_.port(); }
+    std::uint16_t port() const noexcept {
+        return acceptor_.port();
+    }
 
-    bool valid() const noexcept { return acceptor_.valid(); }
+    bool valid() const noexcept {
+        return acceptor_.valid();
+    }
 
     // 收到数据时调用。
     using MessageHandler = Connection::MessageHandler;
@@ -50,9 +54,13 @@ public:
     // 拆出这一层是为了让调用方能在两轮之间做别的事——比如检查退出信号。
     void run_once(int timeout_ms = 200);
 
-    void stop() noexcept { running_ = false; }
+    void stop() noexcept {
+        running_ = false;
+    }
 
-    std::size_t connection_count() const noexcept { return conns_.size(); }
+    std::size_t connection_count() const noexcept {
+        return conns_.size();
+    }
 
 private:
     void handle_event(int fd, std::uint32_t events);

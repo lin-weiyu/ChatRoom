@@ -1,10 +1,10 @@
 #pragma once
 
+#include "chatroom/platform/unique_fd.h"
+
 #include <cstdint>
 #include <functional>
 #include <string>
-
-#include "chatroom/platform/unique_fd.h"
 
 namespace chatroom::net {
 
@@ -23,9 +23,13 @@ public:
 
     explicit Acceptor(std::uint16_t port, int backlog = 128);
 
-    bool valid() const noexcept { return listen_fd_.valid(); }
+    bool valid() const noexcept {
+        return listen_fd_.valid();
+    }
 
-    int fd() const noexcept { return listen_fd_.get(); }
+    int fd() const noexcept {
+        return listen_fd_.get();
+    }
 
     // 内核分配的真实端口（构造时传 0 才有意义）
     std::uint16_t port() const noexcept;

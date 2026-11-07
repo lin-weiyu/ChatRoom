@@ -1,5 +1,11 @@
 #pragma once
 
+#include "chatroom/chat/chat_hub.h"
+#include "chatroom/infra/config.h"
+#include "chatroom/infra/thread_pool.h"
+#include "chatroom/net/event_fd.h"
+#include "chatroom/net/server.h"
+
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -7,12 +13,6 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
-
-#include "chatroom/chat/chat_hub.h"
-#include "chatroom/infra/config.h"
-#include "chatroom/infra/event_fd.h"
-#include "chatroom/infra/thread_pool.h"
-#include "chatroom/net/server.h"
 
 namespace chatroom::app {
 
@@ -40,9 +40,13 @@ public:
     ChatServer(const ChatServer&) = delete;
     ChatServer& operator=(const ChatServer&) = delete;
 
-    bool valid() const noexcept { return server_.valid(); }
+    bool valid() const noexcept {
+        return server_.valid();
+    }
 
-    std::uint16_t port() const noexcept { return server_.port(); }
+    std::uint16_t port() const noexcept {
+        return server_.port();
+    }
 
     std::size_t session_count() const noexcept;
 
@@ -78,7 +82,7 @@ private:
     mutable std::mutex result_mutex_;
     std::vector<chat::Outbound> results_;
 
-    infra::EventFd wakeup_;
+    net::EventFd wakeup_;
 
     // pool_ 必须最后声明：析构顺序是反的，这样线程池会先 join，
     // 再销毁它用到的 hub_ 和 mutex。

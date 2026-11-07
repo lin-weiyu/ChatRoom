@@ -59,9 +59,17 @@ void log(LogLevel level, std::string_view message) {
                  ms, level_name(level), static_cast<int>(message.size()), message.data());
 }
 
-void log_debug(std::string_view message) { log(LogLevel::kDebug, message); }
-void log_info(std::string_view message) { log(LogLevel::kInfo, message); }
-void log_warn(std::string_view message) { log(LogLevel::kWarn, message); }
-void log_error(std::string_view message) { log(LogLevel::kError, message); }
+void log_debug(std::string_view message) {
+    log(LogLevel::kDebug, message);
+}
+void log_info(std::string_view message) {
+    log(LogLevel::kInfo, message);
+}
+void log_warn(std::string_view message) {
+    log(LogLevel::kWarn, message);
+}
+void log_error(std::string_view message) {
+    log(LogLevel::kError, message);
+}
 
 }  // namespace chatroom::infra

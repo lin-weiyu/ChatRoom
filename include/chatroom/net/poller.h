@@ -1,11 +1,10 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
-
-#include <sys/epoll.h>
-
 #include "chatroom/platform/unique_fd.h"
+
+#include <cstdint>
+#include <sys/epoll.h>
+#include <vector>
 
 namespace chatroom::net {
 
@@ -29,7 +28,9 @@ public:
     // 等待就绪事件。返回本次就绪的个数（0 表示超时，-1 表示出错）。
     int wait(int timeout_ms);
 
-    const epoll_event* events() const noexcept { return events_.data(); }
+    const epoll_event* events() const noexcept {
+        return events_.data();
+    }
 
 private:
     platform::UniqueFd epfd_;

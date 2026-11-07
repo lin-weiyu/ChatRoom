@@ -20,16 +20,24 @@ public:
     Buffer() : buf_(kInitialCapacity) {}
 
     void append(const char* data, std::size_t len);
-    void append(std::string_view data) { append(data.data(), data.size()); }
+    void append(std::string_view data) {
+        append(data.data(), data.size());
+    }
 
     // 可读区间的起始指针与长度
-    const char* data() const noexcept { return buf_.data() + read_index_; }
-    std::size_t readable() const noexcept { return write_index_ - read_index_; }
+    const char* data() const noexcept {
+        return buf_.data() + read_index_;
+    }
+    std::size_t readable() const noexcept {
+        return write_index_ - read_index_;
+    }
 
     // 消费掉前 n 字节。n 大于可读长度时按可读长度处理。
     void retrieve(std::size_t n) noexcept;
 
-    std::string_view view() const noexcept { return {data(), readable()}; }
+    std::string_view view() const noexcept {
+        return {data(), readable()};
+    }
 
 private:
     // 保证尾部至少能再写 len 字节

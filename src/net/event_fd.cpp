@@ -1,11 +1,11 @@
-#include "chatroom/infra/event_fd.h"
-
-#include <sys/eventfd.h>
-#include <unistd.h>
+#include "chatroom/net/event_fd.h"
 
 #include <cstdint>
+#include <sys/eventfd.h>
 
-namespace chatroom::infra {
+#include <unistd.h>
+
+namespace chatroom::net {
 
 EventFd::EventFd() : fd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)) {}
 
@@ -31,4 +31,4 @@ void EventFd::drain() noexcept {
     (void)ignored;
 }
 
-}  // namespace chatroom::infra
+}  // namespace chatroom::net

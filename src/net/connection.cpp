@@ -1,10 +1,10 @@
 #include "chatroom/net/connection.h"
 
-#include <sys/socket.h>
-#include <unistd.h>
-
 #include <cerrno>
+#include <sys/socket.h>
 #include <utility>
+
+#include <unistd.h>
 
 namespace chatroom::net {
 
@@ -107,7 +107,9 @@ void Connection::send(std::string_view data) {
     out_.append(data);
 }
 
-void Connection::shutdown() noexcept { closed_ = true; }
+void Connection::shutdown() noexcept {
+    closed_ = true;
+}
 
 void Connection::shutdown_write() noexcept {
     if (fd_.valid()) {
