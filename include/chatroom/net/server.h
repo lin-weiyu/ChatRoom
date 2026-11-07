@@ -28,9 +28,14 @@ public:
 
     bool valid() const noexcept { return acceptor_.valid(); }
 
-    // 收到数据时调用。默认实现是 echo，M1 之后会被协议解析替换。
+    // 收到数据时调用。
     using MessageHandler = Connection::MessageHandler;
+    using OpenHandler = std::function<void(Connection&)>;
+    using CloseHandler = std::function<void(Connection&)>;
+
     void set_message_handler(MessageHandler handler);
+    void set_open_handler(OpenHandler handler);
+    void set_close_handler(CloseHandler handler);
 
     // 跑事件循环，直到 stop() 被调用。
     void run();
@@ -53,6 +58,8 @@ private:
     Acceptor acceptor_;
     std::unordered_map<int, std::unique_ptr<Connection>> conns_;
     MessageHandler message_handler_;
+    OpenHandler open_handler_;
+    CloseHandler close_handler_;
     bool running_ = false;
 };
 
