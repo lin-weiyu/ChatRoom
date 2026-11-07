@@ -227,11 +227,13 @@ int main(int argc, char** argv) {
                 }
             }
             if (should_quit) {
-                // 不要立刻退出：服务器可能还有最后几条消息（bye、其他人的
-                // 告别）在路上。停止读 stdin，继续把 socket 读干净，
-                // 直到服务器关闭连接或者空闲超时。
+                // 收到 /quit：停止读 stdin，但**不要**立刻发 FIN。
+                // 让服务器先把它最后的 bye 发完、再主动关闭；我们这边
+                // 继续读，直到 recv 返回 0（对端 FIN）。
+                //
+                // 如果这时抢先 shutdown(SHUT_WR)，服务器会在读到 EOF 后
+                // 立刻 close，把还没发出去的 bye 一起丢掉——实测丢过。
                 stdin_open = false;
-                ::shutdown(client.fd, SHUT_WR);
             }
         }
 
