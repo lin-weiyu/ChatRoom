@@ -84,7 +84,10 @@ Review 优先列**严重问题**，其次改进建议，最后才是风格。风
 - 行尾：LF（`.gitattributes` 强制）
 - 命名：类型 `CamelCase`，函数/变量 `snake_case`，成员变量加 `_` 后缀，
   常量 `kCamelCase`
-- 注释：只解释**为什么**，不解释**是什么**
+- 注释：只解释**为什么**，不解释**是什么**——完整规范见
+  [`docs/comment-style.md`](docs/comment-style.md)
+- 操作系统常识（fd / errno / epoll）写在 [`docs/basics.md`](docs/basics.md)，
+  不要塞进源码注释
 
 ## 分层纪律
 

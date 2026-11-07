@@ -1,3 +1,12 @@
+// logger.h — 分级日志
+//
+// 所属层：infra（平台无关，谁都能用）
+// 被谁使用：主要在 app 层
+//
+// 为什么自己写而不引 spdlog：这个项目的目标是理解"日志被谁、在什么上下文
+// 里写"。引一个功能齐全的库会把这层遮住。等 M6 线程池落地后如果发现性能
+// 真的有问题，再换也不迟。
+
 #pragma once
 
 #include <string_view>
@@ -11,18 +20,17 @@ enum class LogLevel : int {
     kError = 3,
 };
 
+/// 设置最低输出级别。低于该级别的日志被丢弃。
 void set_log_level(LogLevel level);
 
 LogLevel log_level();
 
-// 线程安全的日志输出。
-//
-// 为什么不用 printf：多个线程同时写 stderr 会把行撕开，日志变成
-// 半条 A 半条 B 的乱码。这里用一把锁保证"一行是一次原子写"。
-//
-// 为什么暂时不引 spdlog：M3 的目标是理解"日志被谁、在什么上下文里写"，
-// 引一个功能齐全的库会把这层遮住。等 M6 线程池落地之后，如果发现
-// 性能真的有问题，再换也不迟。
+/// 线程安全地输出一行日志。
+///
+/// 为什么必须加锁：多个线程同时写 stderr 会把行撕开，日志变成
+/// "半条 A 半条 B" 的乱码。一把锁保证"一行 = 一次原子写"。
+///
+/// @param message 不含换行符；输出时会自动加时间戳、级别和换行
 void log(LogLevel level, std::string_view message);
 
 void log_debug(std::string_view message);

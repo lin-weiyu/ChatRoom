@@ -1,3 +1,17 @@
+// server.cpp — 事件循环实现
+//
+// 整个服务器的主干就在这里：
+//
+//   epoll_wait 返回一批就绪的 fd
+//        ↓
+//   监听 fd  → accept 新连接
+//   客户端 fd → 读 / 写
+//        ↓
+//   调整 EPOLLOUT 关注（有积压才加）
+//
+// 注意所有回调都可能在"连接已经不可用"的状态下被触发，所以每次操作之后
+// 都要重新检查 conn.closed()。
+
 #include "chatroom/net/server.h"
 
 #include <cerrno>
@@ -10,6 +24,7 @@ namespace chatroom::net {
 
 Server::Server(std::uint16_t port, int backlog) : acceptor_(port, backlog) {
     if (acceptor_.valid()) {
+        // 先把监听 fd 注册进 epoll：只有它可读，才说明有新连接到来。
         poller_.add(acceptor_.fd(), EPOLLIN);
     }
 }
@@ -49,9 +64,10 @@ void Server::on_new_connection(Acceptor::Accepted&& accepted) {
     });
 
     // EPOLLRDHUP：对端 shutdown 写方向时通知我们。
-    // 没有它，半关闭连接要等到下一次 recv 才发现。
+    // 没有它，半关闭的连接要等到下一次 recv 才发现。
     poller_.add(fd, EPOLLIN | EPOLLRDHUP);
 
+    // 先取出裸指针再 move：move 之后 conn 就空了。
     Connection* raw = conn.get();
     conns_.emplace(fd, std::move(conn));
 
@@ -63,8 +79,8 @@ void Server::on_new_connection(Acceptor::Accepted&& accepted) {
 void Server::update_interest(Connection& conn) {
     std::uint32_t events = EPOLLIN | EPOLLRDHUP;
     if (conn.want_write()) {
-        // 只有真的有积压才注册 EPOLLOUT。常驻注册会让 epoll 在每次
-        // 可写时都唤醒我们，白白烧 CPU。
+        // 只有真的有积压才注册 EPOLLOUT。常驻注册会让 epoll 在每次可写时
+        // 都唤醒我们——而 socket 绝大多数时间都是可写的，等于空转烧 CPU。
         events |= EPOLLOUT;
     }
     poller_.mod(conn.fd(), events);
@@ -75,9 +91,12 @@ void Server::close_connection(int fd) {
     if (it == conns_.end()) {
         return;
     }
-    // 顺序很重要：先从 epoll 摘掉，再让 UniqueFd 析构 close。
-    // 反过来做（先 close 再 DEL）会拿一个已关闭的 fd 去调 epoll_ctl，
-    // 必然 EBADF——旧代码犯的就是这个错。
+
+    // 顺序很重要：先通知业务层清理状态，再从 epoll 摘除，最后才让
+    // UniqueFd 析构去 close。
+    //
+    // 反过来做（先 close 再 epoll_ctl(DEL)）会拿一个已关闭的 fd 去调
+    // epoll_ctl，必然 EBADF——早期版本犯的就是这个错。
     if (close_handler_) {
         close_handler_(*it->second);
     }
@@ -86,6 +105,7 @@ void Server::close_connection(int fd) {
 }
 
 void Server::handle_event(int fd, std::uint32_t events) {
+    // 叫醒 fd 不是业务连接，单独处理。
     if (fd == wakeup_fd_) {
         if (wakeup_handler_) {
             wakeup_handler_();
@@ -103,11 +123,14 @@ void Server::handle_event(int fd, std::uint32_t events) {
 
     auto it = conns_.find(fd);
     if (it == conns_.end()) {
+        // 连接可能已经被上一轮事件关闭，而 epoll 这次还把它报出来了。
+        // 这不是 bug，只是"事件和状态之间有时间差"。
         return;
     }
 
     Connection& conn = *it->second;
 
+    // EPOLLERR/EPOLLHUP 表示连接已经出问题，不必再等 EPOLLIN。
     if ((events & (EPOLLERR | EPOLLHUP)) != 0) {
         conn.shutdown();
     }
@@ -125,23 +148,23 @@ void Server::handle_event(int fd, std::uint32_t events) {
         return;
     }
 
+    // 读写可能改变了积压状态（比如刚把缓冲发完），要重新调整关注的事件。
     update_interest(conn);
 }
 
 void Server::run() {
     running_ = true;
-
     while (running_) {
         run_once();
     }
 }
 
 void Server::run_once(int timeout_ms) {
-    // 超时不是 0：留出返回控制权的机会，让调用方能检查退出标志。
+    // 超时不是 -1：每隔一段时间返回一次，让调用方有机会检查退出标志。
     const int n = poller_.wait(timeout_ms);
 
     if (n <= 0) {
-        return;
+        return;  // 超时或被信号打断，都不是错误
     }
 
     for (int i = 0; i < n; ++i) {
