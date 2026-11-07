@@ -19,11 +19,14 @@ if(NOT GTest_FOUND)
 endif()
 
 add_executable(chatroom_tests
+    unit/test_buffer.cpp
+    unit/test_unique_fd.cpp
     unit/test_version.cpp
 )
 
 target_link_libraries(chatroom_tests PRIVATE
     chatroom_core
+    chatroom_net
     GTest::gtest_main
 )
 
