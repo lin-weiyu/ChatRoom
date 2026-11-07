@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "chatroom/app/chat_server.h"
+#include "chatroom/infra/config.h"
+#include "chatroom/infra/logger.h"
 #include "chatroom/version.h"
 
 namespace {
@@ -16,33 +18,46 @@ void handle_signal(int) { g_stop = 1; }
 }  // namespace
 
 int main(int argc, char** argv) {
+    const auto parsed = chatroom::infra::parse_args(argc, argv);
+    if (!parsed.ok) {
+        std::cerr << parsed.message << "\n\n" << chatroom::infra::usage(argv[0]);
+        return 2;
+    }
+    if (parsed.should_exit) {
+        std::cout << parsed.message << "\n";
+        return 0;
+    }
+
+    if (parsed.config.verbose) {
+        chatroom::infra::set_log_level(chatroom::infra::LogLevel::kDebug);
+    }
+
     std::signal(SIGINT, handle_signal);
     std::signal(SIGTERM, handle_signal);
 
     // 兜底：即使某处漏了 MSG_NOSIGNAL，也不至于被一个已关闭的连接杀掉进程。
     std::signal(SIGPIPE, SIG_IGN);
 
-    // 端口可通过参数指定；传 0 让内核分配（测试用）。
-    std::uint16_t port = 12345;
-    if (argc > 1) {
-        port = static_cast<std::uint16_t>(std::atoi(argv[1]));
-    }
-
-    chatroom::app::ChatServer server(port);
+    chatroom::app::ChatServer server(parsed.config);
     if (!server.valid()) {
-        std::cerr << "failed to listen on port " << port << std::endl;
+        chatroom::infra::log_error("failed to listen on port " +
+                                   std::to_string(parsed.config.port));
         return 1;
     }
 
-    // endl 而不是 "\n"：stdout 重定向到管道时是全缓冲的，
-    // 不刷新的话，进程被 kill 之前这行日志根本不会出现在日志文件里。
-    std::cout << "chatroom " << chatroom::version() << " listening on port " << server.port()
-              << std::endl;
+    chatroom::infra::log_info(std::string("chatroom ") + std::string(chatroom::version()) +
+                              " listening on port " + std::to_string(server.port()));
 
     while (g_stop == 0) {
         server.run_once();
     }
 
-    std::cout << "shutdown" << std::endl;
+    server.shutdown();
+    // 给内核一点时间把 FIN 和最后的消息发出去
+    for (int i = 0; i < 3; ++i) {
+        server.run_once(100);
+    }
+
+    chatroom::infra::log_info("bye");
     return 0;
 }
