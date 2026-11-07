@@ -97,6 +97,13 @@ target_compile_definitions(chatroom_core PRIVATE
     CHATROOM_BUILD_TYPE="$<CONFIG>"
 )
 
+# 基础设施：日志、配置。所有层都可以用。
+add_library(chatroom_infra STATIC
+    src/infra/config.cpp
+    src/infra/logger.cpp
+)
+target_link_libraries(chatroom_infra PUBLIC chatroom_platform)
+
 # 业务层：用户、房间、消息路由。不认识 socket。
 add_library(chatroom_chat STATIC
     src/chat/chat_hub.cpp
@@ -107,7 +114,7 @@ target_link_libraries(chatroom_chat PUBLIC chatroom_protocol)
 add_library(chatroom_app STATIC
     src/app/chat_server.cpp
 )
-target_link_libraries(chatroom_app PUBLIC chatroom_net chatroom_chat)
+target_link_libraries(chatroom_app PUBLIC chatroom_net chatroom_chat chatroom_infra)
 
 add_executable(chatroom_server
     src/main.cpp
