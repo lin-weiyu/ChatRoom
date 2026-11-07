@@ -71,8 +71,8 @@ void ChatHub::remove_session(SessionId id, std::vector<Outbound>& out) {
     users_.erase(it);
 }
 
-void ChatHub::broadcast_room(const std::string& room, const protocol::Frame& frame, SessionId except,
-                             std::vector<Outbound>& out) {
+void ChatHub::broadcast_room(const std::string& room, const protocol::Frame& frame,
+                             SessionId except, std::vector<Outbound>& out) {
     const auto it = rooms_.find(room);
     if (it == rooms_.end()) {
         return;
@@ -137,8 +137,7 @@ void ChatHub::handle(SessionId id, const protocol::Frame& frame, std::vector<Out
     }
 }
 
-void ChatHub::handle_join(SessionId id, const protocol::Frame& frame,
-                          std::vector<Outbound>& out) {
+void ChatHub::handle_join(SessionId id, const protocol::Frame& frame, std::vector<Outbound>& out) {
     UserInfo& user = users_.at(id);
     const std::string nickname = field_or(frame, 0);
 
@@ -165,14 +164,12 @@ void ChatHub::handle_join(SessionId id, const protocol::Frame& frame,
     rooms_[room].insert(id);
 
     out.push_back(system(id, "info", "welcome, " + nickname + " (room: " + room + ")"));
-    broadcast_room(room,
-                   protocol::Frame{protocol::MessageType::kSys,
-                                   {"join", nickname + " joined " + room}},
-                   id, out);
+    broadcast_room(
+        room, protocol::Frame{protocol::MessageType::kSys, {"join", nickname + " joined " + room}},
+        id, out);
 }
 
-void ChatHub::handle_nick(SessionId id, const protocol::Frame& frame,
-                          std::vector<Outbound>& out) {
+void ChatHub::handle_nick(SessionId id, const protocol::Frame& frame, std::vector<Outbound>& out) {
     UserInfo& user = users_.at(id);
     const std::string nickname = field_or(frame, 0);
 
@@ -192,14 +189,13 @@ void ChatHub::handle_nick(SessionId id, const protocol::Frame& frame,
     by_nickname_[nickname] = id;
 
     out.push_back(system(id, "info", "you are now " + nickname));
-    broadcast_room(user.room,
-                   protocol::Frame{protocol::MessageType::kSys,
-                                   {"info", old_name + " is now " + nickname}},
-                   id, out);
+    broadcast_room(
+        user.room,
+        protocol::Frame{protocol::MessageType::kSys, {"info", old_name + " is now " + nickname}},
+        id, out);
 }
 
-void ChatHub::handle_msg(SessionId id, const protocol::Frame& frame,
-                         std::vector<Outbound>& out) {
+void ChatHub::handle_msg(SessionId id, const protocol::Frame& frame, std::vector<Outbound>& out) {
     const UserInfo& user = users_.at(id);
 
     const std::string requested_room = field_or(frame, 0);
@@ -267,10 +263,10 @@ void ChatHub::handle_join_room(SessionId id, const protocol::Frame& frame,
     rooms_[room].insert(id);
 
     out.push_back(system(id, "info", "joined " + room));
-    broadcast_room(room,
-                   protocol::Frame{protocol::MessageType::kSys,
-                                   {"join", user.nickname + " joined " + room}},
-                   id, out);
+    broadcast_room(
+        room,
+        protocol::Frame{protocol::MessageType::kSys, {"join", user.nickname + " joined " + room}},
+        id, out);
 }
 
 void ChatHub::handle_leave_room(SessionId id, const protocol::Frame& frame,

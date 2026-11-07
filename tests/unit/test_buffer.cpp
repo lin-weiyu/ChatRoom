@@ -1,8 +1,8 @@
-#include <gtest/gtest.h>
+#include "chatroom/net/buffer.h"
 
 #include <string>
 
-#include "chatroom/net/buffer.h"
+#include <gtest/gtest.h>
 
 using chatroom::net::Buffer;
 

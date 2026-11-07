@@ -1,15 +1,15 @@
 #pragma once
 
-#include <poll.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
-#include <cerrno>
-#include <string>
-
 #include "chatroom/protocol/frame_codec.h"
+
+#include <arpa/inet.h>
+#include <cerrno>
+#include <netinet/in.h>
+#include <string>
+#include <sys/socket.h>
+
+#include <poll.h>
+#include <unistd.h>
 
 namespace chatroom::testing {
 
@@ -21,7 +21,9 @@ namespace chatroom::testing {
 class TestClient {
 public:
     TestClient() = default;
-    ~TestClient() { close(); }
+    ~TestClient() {
+        close();
+    }
 
     TestClient(const TestClient&) = delete;
     TestClient& operator=(const TestClient&) = delete;

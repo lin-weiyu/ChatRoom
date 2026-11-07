@@ -5,20 +5,20 @@
 // 输出总吞吐和每个连接的延迟分布（粗略）。目标不是做一个专业压测工具，
 // 而是让你能量化"单线程 reactor 到底能扛多少"。
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
+#include "chatroom/protocol/frame_codec.h"
 
+#include <arpa/inet.h>
 #include <atomic>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <netinet/in.h>
 #include <string>
+#include <sys/socket.h>
 #include <thread>
 #include <vector>
 
-#include "chatroom/protocol/frame_codec.h"
+#include <unistd.h>
 
 namespace {
 
@@ -53,10 +53,14 @@ int main(int argc, char** argv) {
     int connections = 50;
     int messages = 20;
 
-    if (argc > 1) host = argv[1];
-    if (argc > 2) port = static_cast<std::uint16_t>(std::atoi(argv[2]));
-    if (argc > 3) connections = std::atoi(argv[3]);
-    if (argc > 4) messages = std::atoi(argv[4]);
+    if (argc > 1)
+        host = argv[1];
+    if (argc > 2)
+        port = static_cast<std::uint16_t>(std::atoi(argv[2]));
+    if (argc > 3)
+        connections = std::atoi(argv[3]);
+    if (argc > 4)
+        messages = std::atoi(argv[4]);
 
     if (connections <= 0 || messages <= 0) {
         std::cerr << "usage: " << argv[0] << " [host] [port] [connections] [messages]\n";
@@ -119,8 +123,8 @@ int main(int argc, char** argv) {
     std::cout << "sent: " << total << ", failed: " << failed.load() << "\n";
     std::cout << "elapsed: " << elapsed.count() << " s\n";
     if (elapsed.count() > 0) {
-        std::cout << "throughput: " << static_cast<long>(static_cast<double>(total) / elapsed.count())
-                  << " msg/s\n";
+        std::cout << "throughput: "
+                  << static_cast<long>(static_cast<double>(total) / elapsed.count()) << " msg/s\n";
     }
     return 0;
 }

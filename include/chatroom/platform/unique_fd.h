@@ -22,11 +22,17 @@ public:
     UniqueFd(UniqueFd&& other) noexcept;
     UniqueFd& operator=(UniqueFd&& other) noexcept;
 
-    int get() const noexcept { return fd_; }
+    int get() const noexcept {
+        return fd_;
+    }
 
-    bool valid() const noexcept { return fd_ >= 0; }
+    bool valid() const noexcept {
+        return fd_ >= 0;
+    }
 
-    explicit operator bool() const noexcept { return valid(); }
+    explicit operator bool() const noexcept {
+        return valid();
+    }
 
     // 放弃所有权：把一个已经创建的 fd 移交给别的机制管理时使用
     // （例如 accept 之后要把它存进 map）。

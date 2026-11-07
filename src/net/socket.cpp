@@ -1,13 +1,13 @@
 #include "chatroom/net/socket.h"
 
-#include <fcntl.h>
+#include <cstring>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <unistd.h>
 
-#include <cstring>
+#include <fcntl.h>
+#include <unistd.h>
 
 namespace chatroom::net {
 

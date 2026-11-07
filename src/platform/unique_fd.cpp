@@ -1,8 +1,8 @@
 #include "chatroom/platform/unique_fd.h"
 
-#include <unistd.h>
-
 #include <utility>
+
+#include <unistd.h>
 
 namespace chatroom::platform {
 

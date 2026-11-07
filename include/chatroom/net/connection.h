@@ -1,12 +1,12 @@
 #pragma once
 
+#include "chatroom/net/buffer.h"
+#include "chatroom/platform/unique_fd.h"
+
 #include <cstdint>
 #include <functional>
 #include <string>
 #include <string_view>
-
-#include "chatroom/net/buffer.h"
-#include "chatroom/platform/unique_fd.h"
 
 namespace chatroom::net {
 
@@ -30,9 +30,13 @@ public:
     Connection(const Connection&) = delete;
     Connection& operator=(const Connection&) = delete;
 
-    int fd() const noexcept { return fd_.get(); }
+    int fd() const noexcept {
+        return fd_.get();
+    }
 
-    const std::string& peer() const noexcept { return peer_; }
+    const std::string& peer() const noexcept {
+        return peer_;
+    }
 
     void set_message_handler(MessageHandler on_message);
 
@@ -46,12 +50,18 @@ public:
     void send(std::string_view data);
 
     // 写缓冲里是否还有积压——有积压才需要注册 EPOLLOUT
-    bool want_write() const noexcept { return out_.readable() > 0; }
+    bool want_write() const noexcept {
+        return out_.readable() > 0;
+    }
 
-    bool closed() const noexcept { return closed_; }
+    bool closed() const noexcept {
+        return closed_;
+    }
 
     // 访问读缓冲，供上层解析协议
-    Buffer& input() noexcept { return in_; }
+    Buffer& input() noexcept {
+        return in_;
+    }
 
     // 主动关闭（立即停止收发，由 Server 移除）
     void shutdown() noexcept;

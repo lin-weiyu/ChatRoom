@@ -1,11 +1,11 @@
-#include <csignal>
-#include <cstdlib>
-#include <iostream>
-
 #include "chatroom/app/chat_server.h"
 #include "chatroom/infra/config.h"
 #include "chatroom/infra/logger.h"
 #include "chatroom/version.h"
+
+#include <csignal>
+#include <cstdlib>
+#include <iostream>
 
 namespace {
 
@@ -13,7 +13,9 @@ namespace {
 // 真正的退出逻辑留在事件循环里（每轮最多 200ms 就会检查一次）。
 volatile std::sig_atomic_t g_stop = 0;
 
-void handle_signal(int) { g_stop = 1; }
+void handle_signal(int) {
+    g_stop = 1;
+}
 
 }  // namespace
 

@@ -1,12 +1,12 @@
 #pragma once
 
+#include "chatroom/app/chat_server.h"
+#include "chatroom/infra/config.h"
+
 #include <atomic>
 #include <cstdint>
 #include <memory>
 #include <thread>
-
-#include "chatroom/app/chat_server.h"
-#include "chatroom/infra/config.h"
 
 namespace chatroom::testing {
 
@@ -42,9 +42,13 @@ public:
     TestServer(const TestServer&) = delete;
     TestServer& operator=(const TestServer&) = delete;
 
-    bool valid() const { return server_ != nullptr && server_->valid(); }
+    bool valid() const {
+        return server_ != nullptr && server_->valid();
+    }
 
-    std::uint16_t port() const { return server_->port(); }
+    std::uint16_t port() const {
+        return server_->port();
+    }
 
 private:
     infra::Config config_;

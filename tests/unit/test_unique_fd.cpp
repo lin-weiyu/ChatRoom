@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
+#include "chatroom/platform/unique_fd.h"
 
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "chatroom/platform/unique_fd.h"
+#include <gtest/gtest.h>
 
 using chatroom::platform::UniqueFd;
 

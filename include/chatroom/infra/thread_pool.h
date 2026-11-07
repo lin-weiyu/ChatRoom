@@ -29,7 +29,9 @@ public:
 
     void submit(std::function<void()> task);
 
-    std::size_t thread_count() const noexcept { return threads_.size(); }
+    std::size_t thread_count() const noexcept {
+        return threads_.size();
+    }
 
     // 仅用于测试/观测：已排队但还没开始的任务数
     std::size_t pending() const;

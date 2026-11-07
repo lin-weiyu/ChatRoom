@@ -14,20 +14,20 @@
 //   /joinroom <room>  /leaveroom <room>
 //   /quit
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <sys/socket.h>
-#include <unistd.h>
+#include "chatroom/protocol/frame_codec.h"
 
+#include <arpa/inet.h>
 #include <cstring>
 #include <iostream>
+#include <netinet/in.h>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <sys/socket.h>
 #include <vector>
 
-#include "chatroom/protocol/frame_codec.h"
+#include <poll.h>
+#include <unistd.h>
 
 namespace {
 
@@ -84,14 +84,22 @@ struct Client {
 };
 
 MessageType type_of(const std::string& level) {
-    if (level == "/join") return MessageType::kJoin;
-    if (level == "/nick") return MessageType::kNick;
-    if (level == "/msg") return MessageType::kMsg;
-    if (level == "/dm") return MessageType::kDm;
-    if (level == "/quit") return MessageType::kQuit;
-    if (level == "/joinroom") return MessageType::kJoinRoom;
-    if (level == "/leaveroom") return MessageType::kLeaveRoom;
-    if (level == "/list") return MessageType::kList;
+    if (level == "/join")
+        return MessageType::kJoin;
+    if (level == "/nick")
+        return MessageType::kNick;
+    if (level == "/msg")
+        return MessageType::kMsg;
+    if (level == "/dm")
+        return MessageType::kDm;
+    if (level == "/quit")
+        return MessageType::kQuit;
+    if (level == "/joinroom")
+        return MessageType::kJoinRoom;
+    if (level == "/leaveroom")
+        return MessageType::kLeaveRoom;
+    if (level == "/list")
+        return MessageType::kList;
     return MessageType::kMsg;
 }
 
@@ -155,8 +163,10 @@ bool handle_line(Client& client, const std::string& line) {
 int main(int argc, char** argv) {
     std::string host = "127.0.0.1";
     std::uint16_t port = 12345;
-    if (argc > 1) host = argv[1];
-    if (argc > 2) port = static_cast<std::uint16_t>(std::atoi(argv[2]));
+    if (argc > 1)
+        host = argv[1];
+    if (argc > 2)
+        port = static_cast<std::uint16_t>(std::atoi(argv[2]));
 
     Client client;
     if (!client.connect_to(host, port)) {

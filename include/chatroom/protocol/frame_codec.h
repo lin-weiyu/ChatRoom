@@ -1,10 +1,10 @@
 #pragma once
 
+#include "chatroom/protocol/frame.h"
+
 #include <cstddef>
 #include <string>
 #include <string_view>
-
-#include "chatroom/protocol/frame.h"
 
 namespace chatroom::protocol {
 

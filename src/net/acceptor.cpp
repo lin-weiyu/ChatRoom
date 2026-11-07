@@ -1,28 +1,30 @@
 #include "chatroom/net/acceptor.h"
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
-#include <cerrno>
-#include <sstream>
-
 #include "chatroom/net/socket.h"
+
+#include <arpa/inet.h>
+#include <cerrno>
+#include <netinet/in.h>
+#include <sstream>
+#include <sys/socket.h>
+
+#include <unistd.h>
 
 namespace chatroom::net {
 
-Acceptor::Acceptor(std::uint16_t port, int backlog)
-    : listen_fd_(create_listener(port, backlog)) {}
+Acceptor::Acceptor(std::uint16_t port, int backlog) : listen_fd_(create_listener(port, backlog)) {}
 
-std::uint16_t Acceptor::port() const noexcept { return local_port(listen_fd_.get()); }
+std::uint16_t Acceptor::port() const noexcept {
+    return local_port(listen_fd_.get());
+}
 
 void Acceptor::accept_all(const AcceptHandler& handler) {
     for (;;) {
         sockaddr_in peer_addr{};
         socklen_t peer_len = sizeof(peer_addr);
 
-        const int fd = ::accept(listen_fd_.get(), reinterpret_cast<sockaddr*>(&peer_addr), &peer_len);
+        const int fd =
+            ::accept(listen_fd_.get(), reinterpret_cast<sockaddr*>(&peer_addr), &peer_len);
 
         if (fd < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {

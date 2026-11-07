@@ -1,14 +1,14 @@
 #pragma once
 
+#include "chatroom/chat/types.h"
+#include "chatroom/protocol/frame.h"
+
 #include <cstddef>
 #include <map>
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include "chatroom/chat/types.h"
-#include "chatroom/protocol/frame.h"
 
 namespace chatroom::chat {
 
@@ -31,11 +31,17 @@ public:
     // 处理一条来自该会话的帧。
     void handle(SessionId id, const protocol::Frame& frame, std::vector<Outbound>& out);
 
-    std::size_t session_count() const noexcept { return users_.size(); }
+    std::size_t session_count() const noexcept {
+        return users_.size();
+    }
 
-    std::size_t room_count() const noexcept { return rooms_.size(); }
+    std::size_t room_count() const noexcept {
+        return rooms_.size();
+    }
 
-    bool has_user(SessionId id) const noexcept { return users_.find(id) != users_.end(); }
+    bool has_user(SessionId id) const noexcept {
+        return users_.find(id) != users_.end();
+    }
 
     const UserInfo* find_user(SessionId id) const;
 

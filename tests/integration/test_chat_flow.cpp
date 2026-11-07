@@ -1,8 +1,9 @@
-#include <gtest/gtest.h>
-
 #include "chatroom/protocol/frame.h"
+
 #include "helpers/test_client.h"
 #include "helpers/test_server.h"
+
+#include <gtest/gtest.h>
 
 using chatroom::protocol::Frame;
 using chatroom::protocol::MessageType;

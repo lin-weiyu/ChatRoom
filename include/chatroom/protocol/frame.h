@@ -1,9 +1,9 @@
 #pragma once
 
+#include "chatroom/protocol/message_type.h"
+
 #include <string>
 #include <vector>
-
-#include "chatroom/protocol/message_type.h"
 
 namespace chatroom::protocol {
 
