@@ -11,9 +11,8 @@ namespace chatroom::net {
 Connection::Connection(platform::UniqueFd fd, std::string peer)
     : fd_(std::move(fd)), peer_(std::move(peer)) {}
 
-void Connection::set_handlers(MessageHandler on_message, CloseHandler on_close) {
+void Connection::set_message_handler(MessageHandler on_message) {
     on_message_ = std::move(on_message);
-    on_close_ = std::move(on_close);
 }
 
 bool Connection::handle_read() {
@@ -109,5 +108,11 @@ void Connection::send(std::string_view data) {
 }
 
 void Connection::shutdown() noexcept { closed_ = true; }
+
+void Connection::shutdown_write() noexcept {
+    if (fd_.valid()) {
+        ::shutdown(fd_.get(), SHUT_WR);
+    }
+}
 
 }  // namespace chatroom::net

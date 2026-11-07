@@ -25,9 +25,6 @@ public:
     // 回调里通过 retrieve() 决定消费多少（M1 的协议解析就靠这个）。
     using MessageHandler = std::function<void(Connection&, std::string_view)>;
 
-    // 连接关闭时调用（对端关闭、读写出错、本地主动关闭都会触发）。
-    using CloseHandler = std::function<void(Connection&)>;
-
     Connection(platform::UniqueFd fd, std::string peer);
 
     Connection(const Connection&) = delete;
@@ -37,7 +34,7 @@ public:
 
     const std::string& peer() const noexcept { return peer_; }
 
-    void set_handlers(MessageHandler on_message, CloseHandler on_close);
+    void set_message_handler(MessageHandler on_message);
 
     // 处理可读事件。返回 false 表示连接已经不可用。
     bool handle_read();
@@ -56,8 +53,14 @@ public:
     // 访问读缓冲，供上层解析协议
     Buffer& input() noexcept { return in_; }
 
-    // 主动关闭（发送完剩余数据后由 Server 移除）
+    // 主动关闭（立即停止收发，由 Server 移除）
     void shutdown() noexcept;
+
+    // 只关写方向：发一个 FIN，但仍继续读取对端的数据。
+    //
+    // 这是"优雅关闭"的正确做法。直接 close() 的问题是：如果接收缓冲里
+    // 还有未读数据，内核会发 RST 而不是 FIN，对端刚收到的数据可能被丢弃。
+    void shutdown_write() noexcept;
 
 private:
     bool write_out();
@@ -71,7 +74,6 @@ private:
     bool closed_ = false;
 
     MessageHandler on_message_;
-    CloseHandler on_close_;
 };
 
 }  // namespace chatroom::net
