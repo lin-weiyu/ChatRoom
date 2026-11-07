@@ -78,7 +78,13 @@ add_library(chatroom_net STATIC
 )
 target_link_libraries(chatroom_net PUBLIC chatroom_platform)
 
-# 版本信息与将来的协议/业务层
+# 协议层：纯函数编解码，不认识 socket。
+add_library(chatroom_protocol STATIC
+    src/protocol/frame_codec.cpp
+)
+target_link_libraries(chatroom_protocol PUBLIC chatroom_platform)
+
+# 版本信息与将来的业务层
 add_library(chatroom_core STATIC
     src/core/version.cpp
 )
