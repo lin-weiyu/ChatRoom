@@ -19,15 +19,22 @@ if(NOT GTest_FOUND)
 endif()
 
 add_executable(chatroom_tests
+    # 单元测试：不需要网络
     unit/test_buffer.cpp
     unit/test_chat_hub.cpp
     unit/test_frame_codec.cpp
     unit/test_thread_pool.cpp
     unit/test_unique_fd.cpp
     unit/test_version.cpp
+
+    # 集成测试：在进程内起真实服务器，用真实 socket 通信
+    integration/test_chat_flow.cpp
 )
 
+target_include_directories(chatroom_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_link_libraries(chatroom_tests PRIVATE
+    chatroom_app
     chatroom_chat
     chatroom_core
     chatroom_infra

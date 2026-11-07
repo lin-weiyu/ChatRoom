@@ -128,6 +128,11 @@ add_executable(chatroom_cli
 )
 target_link_libraries(chatroom_cli PRIVATE chatroom_protocol)
 
+add_executable(chatroom_loadgen
+    tools/loadgen.cpp
+)
+target_link_libraries(chatroom_loadgen PRIVATE chatroom_protocol Threads::Threads)
+
 # ---------------------------------------------------------------------------
 # 测试
 # ---------------------------------------------------------------------------
