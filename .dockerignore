@@ -1,0 +1,15 @@
+# 构建上下文瘦身：这些文件进了镜像也只会让 COPY 变慢。
+#
+# 注意：tests/ 不能排除——Dockerfile 在镜像构建过程中会跑 ctest。
+.git
+.github
+build
+build-*
+cmake-build-*
+docs
+*.md
+!README.md
+.gitignore
+.gitattributes
+.clang-format
+.editorconfig

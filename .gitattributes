@@ -1,0 +1,11 @@
+# 一律 LF。
+#
+# 这个项目在 Linux 上编译运行，Windows 的 CRLF 会让脚本（#!/usr/bin/env bash）
+# 在 WSL 里报 "$'\r': command not found"。让 git 在入库时统一成 LF，
+# 是解决这类问题的唯一可靠办法。
+* text=auto eol=lf
+
+# 二进制文件不要做换行符转换
+*.png binary
+*.jpg binary
+*.gif binary

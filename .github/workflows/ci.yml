@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# 同一分支连续推送时，取消旧的一次运行，省 runner 时间。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 构建 + 测试矩阵
+  #
+  # Linux 是主目标平台（epoll 只存在于 Linux 内核）。
+  # macOS 用来验证"与平台无关的层"仍然可移植——这一条在 M2 引入 epoll 之后
+  # 会帮助我们发现分层是否被破坏。
+  # ---------------------------------------------------------------------------
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            prefix: ""
+          - os: macos-14
+            prefix: "/opt/homebrew"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libgtest-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake ninja googletest
+
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCHATROOM_WERROR=ON
+          -DCMAKE_PREFIX_PATH="${{ matrix.prefix }}"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  # ---------------------------------------------------------------------------
+  # 格式检查：格式问题交给工具，不要人肉在 review 里挑。
+  # ---------------------------------------------------------------------------
+  format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          find include src tests -name '*.h' -o -name '*.cpp' \
+            | xargs clang-format --dry-run --Werror
+
+  # ---------------------------------------------------------------------------
+  # 容器镜像：验证 Dockerfile 里那条 "构建 + 测试" 链路是可用的。
+  # 这条 job 绿了，就意味着任何人拿到仓库都能一条命令跑起来。
+  # ---------------------------------------------------------------------------
+  docker:
+    name: docker image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image (编译与测试都在镜像构建过程中执行)
+        run: docker build -t chatroom:ci .
