@@ -15,7 +15,7 @@ PORT="${PORT:-12346}"
 LOG="${TMPDIR:-/tmp}/chatroom-smoke-chat.log"
 
 echo "[smoke] starting $BIN on port $PORT"
-"$BIN" "$PORT" > "$LOG" 2>&1 &
+"$BIN" --port "$PORT" > "$LOG" 2>&1 &
 SRV_PID=$!
 trap 'kill "$SRV_PID" 2>/dev/null || true' EXIT
 
