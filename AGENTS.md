@@ -41,23 +41,21 @@ chat -> protocol -> net -> platform
 
 ## 当前进度
 
-以 `PROGRESS.md` 为准。当前处于 M0（工程骨架）。
+以 `PROGRESS.md` 为准。**v1.0.0 已发布**（2026-11-07），M8（WebSocket）未做。
 
 ## 里程碑
 
-| # | 分支 | 交付 |
+| # | 分支 | 状态 |
 |---|---|---|
-| M0 | `chore/dev-env` | Docker / CMake / CI / 文档规范 / 接远端 |
-| M0.5 | `fix/echo-correctness` | 修阻塞 I/O、部分写、SIGPIPE、EBADF |
-| M1 | `feat/protocol-framing` | 长度前缀协议 + Parser + 单测 |
-| M2 | `feat/session-registry` | Connection / Buffer / EventLoop / Acceptor |
-| M3 | `feat/chat-broadcast` | ChatHub 广播 + 背压 |
-| M4 | `feat/rooms-and-dm` | 房间、私聊、命令 |
-| M5 | `feat/robustness` | 心跳、超时、限流、优雅关闭 |
-| M6 | `feat/thread-pool` | 线程池 + TSan（含 `exp/thread-per-conn` 对比） |
-| M7 | `test/integration-load` | 集成测试、压测 |
-| M8 | `feat/websocket-frontend` | HTTP + WebSocket + 网页 |
-| M9 | `release/v1.0` | tag、CHANGELOG、hotfix 演练 |
+| M0 | `chore/dev-env` | ✅ Docker / CMake / CI / 文档规范 / 接远端 |
+| M0.5 | `fix/echo-correctness` | ✅ 分层重写，修阻塞 I/O、部分写、SIGPIPE、EBADF |
+| M1 | `feat/protocol-framing` | ✅ 长度前缀协议 + 编解码 + 11 个边界用例 |
+| M2–M4 | `feat/chat-core` | ✅ 会话 / 业务 / 装配 / CLI |
+| M5 | `feat/robustness` | ✅ 日志、超时、连接上限、优雅关闭 |
+| M6 | `feat/thread-pool` | ✅ 线程池 + eventfd |
+| M7 | `test/integration-load` | ✅ 集成测试 + 压测 |
+| M8 | `feat/websocket-frontend` | ❌ 未做 |
+| M9 | `release/v1.0` | ✅ tag、CHANGELOG、README |
 
 ## 回答风格
 
