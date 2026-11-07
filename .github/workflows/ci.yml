@@ -18,6 +18,10 @@ jobs:
   # Linux 是主目标平台（epoll 只存在于 Linux 内核）。
   # macOS 用来验证"与平台无关的层"仍然可移植——这一条在 M2 引入 epoll 之后
   # 会帮助我们发现分层是否被破坏。
+  #
+  # 注意：runner 标签用 macos-latest 而不是写死 macos-14。
+  # GitHub 会退役旧标签（macos-14 已报 "configuration is not supported"），
+  # 写死版本的结果就是某天流水线突然红。
   # ---------------------------------------------------------------------------
   build:
     name: build (${{ matrix.os }})
@@ -25,14 +29,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-24.04
-            prefix: ""
-          - os: macos-14
-            prefix: "/opt/homebrew"
+        os: [ubuntu-24.04, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
@@ -45,11 +45,15 @@ jobs:
         run: brew install cmake ninja googletest
 
       - name: Configure
-        run: >
-          cmake -S . -B build -G Ninja
-          -DCMAKE_BUILD_TYPE=Debug
-          -DCHATROOM_WERROR=ON
-          -DCMAKE_PREFIX_PATH="${{ matrix.prefix }}"
+        # Homebrew 的安装前缀在两代 macOS 上不同（/opt/homebrew vs /usr/local），
+        # 写死一个必然在另一台上找不到 GTest。让 brew 自己说了算。
+        run: |
+          PREFIX=""
+          if [ "$RUNNER_OS" = "macOS" ]; then PREFIX="$(brew --prefix)"; fi
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCHATROOM_WERROR=ON \
+            -DCMAKE_PREFIX_PATH="$PREFIX"
 
       - name: Build
         run: cmake --build build --parallel
@@ -64,7 +68,7 @@ jobs:
     name: clang-format
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install clang-format
         run: |
@@ -84,7 +88,7 @@ jobs:
     name: docker image
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Build image (编译与测试都在镜像构建过程中执行)
         run: docker build -t chatroom:ci .
