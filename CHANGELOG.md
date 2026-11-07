@@ -3,6 +3,23 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.1] - 2026-11-07
+
+第一次在真实 CI 上跑出来的两个红灯，修复后四个 job 全绿。
+
+### Fixed
+
+- **clang-format**：M1 之后新增的三十多个文件从未格式化过。全树格式化，
+  并把检查范围扩到 `tools/`
+- **macOS 构建**：原本直接构建 `chatroom_net`，而 epoll 只存在于 Linux。
+  新增 `CHATROOM_PORTABLE_ONLY` 开关，macOS 只构建 platform / protocol /
+  chat / infra —— 这条 job 从此是"分层是否被破坏"的自动检查
+
+### Changed
+
+- `eventfd` 从 `infra` 移到 `net`：它是 Linux I/O 原语，放在平台无关层
+  会让所有链接 infra 的东西间接依赖 Linux
+
 ## [1.0.0] - 2026-11-07
 
 首个可用版本。
@@ -36,4 +53,5 @@
 - 消息不持久化，重启即丢
 - 没有鉴权与 TLS
 
+[1.0.1]: https://github.com/lin-weiyu/ChatRoom/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/lin-weiyu/ChatRoom/releases/tag/v1.0.0
