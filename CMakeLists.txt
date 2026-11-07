@@ -97,10 +97,27 @@ target_compile_definitions(chatroom_core PRIVATE
     CHATROOM_BUILD_TYPE="$<CONFIG>"
 )
 
+# 业务层：用户、房间、消息路由。不认识 socket。
+add_library(chatroom_chat STATIC
+    src/chat/chat_hub.cpp
+)
+target_link_libraries(chatroom_chat PUBLIC chatroom_protocol)
+
+# 装配层：唯一同时认识 net::Connection 和 chat::ChatHub 的地方。
+add_library(chatroom_app STATIC
+    src/app/chat_server.cpp
+)
+target_link_libraries(chatroom_app PUBLIC chatroom_net chatroom_chat)
+
 add_executable(chatroom_server
     src/main.cpp
 )
-target_link_libraries(chatroom_server PRIVATE chatroom_core chatroom_net)
+target_link_libraries(chatroom_server PRIVATE chatroom_app chatroom_core)
+
+add_executable(chatroom_cli
+    tools/chat_cli.cpp
+)
+target_link_libraries(chatroom_cli PRIVATE chatroom_protocol)
 
 # ---------------------------------------------------------------------------
 # 测试
@@ -116,4 +133,4 @@ endif()
 # 安装
 # ---------------------------------------------------------------------------
 include(GNUInstallDirs)
-install(TARGETS chatroom_server RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS chatroom_server chatroom_cli RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
