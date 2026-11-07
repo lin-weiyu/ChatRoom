@@ -62,11 +62,23 @@ find_package(Threads REQUIRED)
 
 add_library(chatroom_platform STATIC
     src/platform/sys_error.cpp
+    src/platform/unique_fd.cpp
 )
 target_include_directories(chatroom_platform PUBLIC include)
 target_link_libraries(chatroom_platform PUBLIC chatroom_warnings Threads::Threads)
 
-# M0 阶段 core 只承载版本信息；M0.5 之后拆分为 protocol/chat 两个目标。
+# 网络层：epoll、连接、缓冲区。Linux 专属。
+add_library(chatroom_net STATIC
+    src/net/acceptor.cpp
+    src/net/buffer.cpp
+    src/net/connection.cpp
+    src/net/poller.cpp
+    src/net/server.cpp
+    src/net/socket.cpp
+)
+target_link_libraries(chatroom_net PUBLIC chatroom_platform)
+
+# 版本信息与将来的协议/业务层
 add_library(chatroom_core STATIC
     src/core/version.cpp
 )
@@ -82,7 +94,7 @@ target_compile_definitions(chatroom_core PRIVATE
 add_executable(chatroom_server
     src/main.cpp
 )
-target_link_libraries(chatroom_server PRIVATE chatroom_core)
+target_link_libraries(chatroom_server PRIVATE chatroom_core chatroom_net)
 
 # ---------------------------------------------------------------------------
 # 测试
