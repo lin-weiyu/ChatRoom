@@ -9,8 +9,12 @@ constexpr std::string_view kVersion = CHATROOM_VERSION;
 constexpr std::string_view kBuildType = CHATROOM_BUILD_TYPE;
 }  // namespace
 
-std::string_view version() noexcept { return kVersion; }
+std::string_view version() noexcept {
+    return kVersion;
+}
 
-std::string_view build_type() noexcept { return kBuildType; }
+std::string_view build_type() noexcept {
+    return kBuildType;
+}
 
 }  // namespace chatroom

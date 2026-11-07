@@ -58,6 +58,25 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
   # ---------------------------------------------------------------------------
+  # 格式检查：格式问题交给工具，不要人肉在 review 里挑。
+  # ---------------------------------------------------------------------------
+  format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          find include src tests -name '*.h' -o -name '*.cpp' \
+            | xargs clang-format --dry-run --Werror
+
+  # ---------------------------------------------------------------------------
   # 容器镜像：验证 Dockerfile 里那条 "构建 + 测试" 链路是可用的。
   # 这条 job 绿了，就意味着任何人拿到仓库都能一条命令跑起来。
   # ---------------------------------------------------------------------------
