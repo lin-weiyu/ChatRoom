@@ -1,5 +1,7 @@
 # ChatRoom
 
+[![CI](https://github.com/lin-weiyu/ChatRoom/actions/workflows/ci.yml/badge.svg)](https://github.com/lin-weiyu/ChatRoom/actions/workflows/ci.yml)
+
 一个从零实现的多客户端 TCP 聊天服务器，C++17，**不用任何网络库**——socket、
 epoll、缓冲区、协议解析、线程池全部手写。
 
