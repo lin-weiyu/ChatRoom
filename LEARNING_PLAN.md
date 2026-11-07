@@ -1,56 +1,56 @@
 # ChatRoom — Learning Plan
 
-## Skill Level Assessment
+## 起点评估
 
-- **当前水平**: ACM ICPC 金银牌，C++ 算法能力强
-- **已掌握**: C++17、CMake、设计模式、GTest、CI
-- **已完成项目**: mini-git、todo-cli
-- **待提升**: 网络编程、并发编程、项目文档规范
+- **已有**：ACM 选手，C++ 算法与数据结构能力强，C++17 基础扎实
+- **缺少**：TCP 与 Linux 系统调用、epoll 之外的 I/O 模型、并发与线程、工程化流程
+- **目标**：一个能写进简历的完整项目 + 能对着代码讲清每一层的工程能力
 
-## Learning Roadmap
+## 学习路线（与里程碑对齐）
 
-### Phase 1 — Echo Server（已完成）
+### 已完成
 
-| 需要学习 | 资源 |
-|----------|------|
-| Socket API (socket/bind/listen/accept) | [Beej's Guide](https://beej.us/guide/bgnet/) Ch1-6 |
-| TCP 连接生命周期 | Beej's Guide Ch2 |
-| 字节序 (htons/htonl) | `man byteorder` |
-| send/recv 数据收发 | Beej's Guide Ch5-6 |
-| 错误处理 (errno) | `man errno` |
+| 阶段 | 内容 | 产出 |
+|---|---|---|
+| Phase 1 | socket / bind / listen / accept / send / recv | echo server |
+| Phase 2 | epoll 多客户端 | 多连接 echo |
+| M0 | 工程骨架：CMake target、Docker、CI、协作规范 | 可构建可测试可交付的仓库 |
 
-### Phase 2 — Multi-client (epoll)（已完成）
+### 进行中
 
-| 需要学习 | 资源 |
-|----------|------|
-| I/O 多路复用概念 | [The C10K Problem](http://www.kegel.com/c10k.html) |
-| epoll API | `man 7 epoll` |
-| 非阻塞 I/O | `man 2 fcntl` |
-| 粘包处理 | - |
+| 里程碑 | 学什么 | 关键问题 |
+|---|---|---|
+| M0.5 | 非阻塞 I/O、部分写、SIGPIPE、RAII | 为什么 `send` 返回值不能忽略？ |
+| M1 | TCP 字节流、消息边界、大端序 | 粘包到底是谁造成的？ |
+| M2 | fd 生命周期、ET vs LT、EPOLLOUT | 什么时候该注册 EPOLLOUT？ |
 
-### Phase 3 — Chat Protocol（当前）
+### 后续
 
-| 需要学习 | 资源 |
-|----------|------|
-| 应用层协议设计 | - |
-| 消息解析 | - |
+| 里程碑 | 学什么 |
+|---|---|
+| M3 | 广播扇出、背压、慢客户端 |
+| M4 | 业务状态与连接状态分离 |
+| M5 | 心跳超时、限流、优雅关闭 |
+| M6 | 线程模型、竞态、mutex/condvar、TSan |
+| M7 | 可测试性设计、集成测试、压测 |
+| M8 | HTTP / WebSocket（RFC 6455） |
+| M9 | 语义化版本、发布流程 |
 
-### Phase 4 — Multi-threading
+## 推荐资料
 
-| 需要学习 | 资源 |
-|----------|------|
-| std::thread + mutex | cppreference |
-| 线程池模式 | - |
+| 主题 | 资料 |
+|---|---|
+| Socket 编程总览 | [Beej's Guide to Network Programming](https://beej.us/guide/bgnet/) |
+| epoll | `man 7 epoll`、`man 2 epoll_wait` |
+| 非阻塞 I/O | `man 2 fcntl`、`man 7 socket` |
+| C10K 问题 | [The C10K Problem](http://www.kegel.com/c10k.html) |
+| 服务端设计 | 陈硕《Linux 多线程服务端编程》（muduo 作者，只读不引） |
+| WebSocket | RFC 6455、MDN |
+| C++ 并发 | 《C++ Concurrency in Action》 |
 
-### Phase 5 — Web Access
+## 调整记录
 
-| 需要学习 | 资源 |
-|----------|------|
-| HTTP 基础 | MDN |
-| WebSocket | RFC 6455 |
-| 基础 HTML/CSS/JS | MDN |
-
-## Adjustment Log
-
-- **2026-08-02**: 初始计划。基于 mini-git 和 todo-cli 分析：网络编程零基础，从 Echo Server 起步。
-- **2026-08-10**: Phase 2 多客户端 epoll Echo Server 已完成，当前重点切换到 Phase 3 聊天协议设计。
+- **2026-08-02**：初始计划，从 Echo Server 起步
+- **2026-08-10**：Phase 2 完成，转向聊天协议
+- **2026-11-07**：改为里程碑制（M0–M9），引入 Docker 与 AI 建设期/教学期双轨模式；
+  确认架构分层与长度前缀协议
