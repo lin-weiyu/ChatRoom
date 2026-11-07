@@ -24,6 +24,14 @@ void Server::set_open_handler(OpenHandler handler) { open_handler_ = std::move(h
 
 void Server::set_close_handler(CloseHandler handler) { close_handler_ = std::move(handler); }
 
+void Server::set_wakeup_fd(int fd, std::function<void()> handler) {
+    wakeup_fd_ = fd;
+    wakeup_handler_ = std::move(handler);
+    if (fd >= 0) {
+        poller_.add(fd, EPOLLIN);
+    }
+}
+
 void Server::on_new_connection(Acceptor::Accepted&& accepted) {
     const int fd = accepted.fd.get();
 
@@ -75,6 +83,13 @@ void Server::close_connection(int fd) {
 }
 
 void Server::handle_event(int fd, std::uint32_t events) {
+    if (fd == wakeup_fd_) {
+        if (wakeup_handler_) {
+            wakeup_handler_();
+        }
+        return;
+    }
+
     if (fd == acceptor_.fd()) {
         if ((events & EPOLLIN) != 0) {
             acceptor_.accept_all([this](Acceptor::Accepted&& accepted) {

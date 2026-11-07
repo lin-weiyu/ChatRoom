@@ -37,6 +37,12 @@ public:
     void set_open_handler(OpenHandler handler);
     void set_close_handler(CloseHandler handler);
 
+    // 注册一个"叫醒 fd"（通常是 eventfd）。
+    //
+    // 工作线程有结果要交给 IO 线程时，eventfd 变可读 → epoll_wait 立刻
+    // 返回 → 调用 handler。没有它，IO 线程只能靠短超时轮询，白白浪费 CPU。
+    void set_wakeup_fd(int fd, std::function<void()> handler);
+
     // 跑事件循环，直到 stop() 被调用。
     void run();
 
@@ -60,6 +66,8 @@ private:
     MessageHandler message_handler_;
     OpenHandler open_handler_;
     CloseHandler close_handler_;
+    int wakeup_fd_ = -1;
+    std::function<void()> wakeup_handler_;
     bool running_ = false;
 };
 

@@ -14,6 +14,7 @@ struct Config {
     int backlog = 128;
     int max_connections = 1024;
     int idle_timeout_seconds = 120;  // 0 表示不超时
+    int worker_threads = 2;          // 0 表示所有业务在 IO 线程里同步执行
     bool verbose = false;
 };
 
