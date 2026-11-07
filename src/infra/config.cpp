@@ -32,6 +32,7 @@ std::string usage(const char* program) {
         << "  --port <n>          listen port (default 12345, 0 = kernel-assigned)\n"
         << "  --max-conns <n>     reject new connections beyond this limit (default 1024)\n"
         << "  --idle-timeout <s>  disconnect silent clients after s seconds (0 = off, default 120)\n"
+        << "  --workers <n>       business-logic worker threads (0 = run on the IO thread, default 2)\n"
         << "  --backlog <n>       listen backlog (default 128)\n"
         << "  --verbose           enable debug logs\n"
         << "  --version           print version and exit\n"
@@ -88,6 +89,8 @@ ParseOutcome parse_args(int argc, char** argv) {
             outcome.config.max_connections = static_cast<int>(value);
         } else if (arg == "--idle-timeout") {
             outcome.config.idle_timeout_seconds = static_cast<int>(value);
+        } else if (arg == "--workers") {
+            outcome.config.worker_threads = static_cast<int>(value);
         } else if (arg == "--backlog") {
             outcome.config.backlog = static_cast<int>(value);
         } else {

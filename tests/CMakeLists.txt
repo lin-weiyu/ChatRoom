@@ -22,6 +22,7 @@ add_executable(chatroom_tests
     unit/test_buffer.cpp
     unit/test_chat_hub.cpp
     unit/test_frame_codec.cpp
+    unit/test_thread_pool.cpp
     unit/test_unique_fd.cpp
     unit/test_version.cpp
 )
@@ -29,6 +30,7 @@ add_executable(chatroom_tests
 target_link_libraries(chatroom_tests PRIVATE
     chatroom_chat
     chatroom_core
+    chatroom_infra
     chatroom_net
     chatroom_protocol
     GTest::gtest_main
